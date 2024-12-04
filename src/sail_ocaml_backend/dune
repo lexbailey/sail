@@ -9,7 +9,8 @@
 (executable
  (name sail_plugin_ocaml)
  (modes
-  (native plugin))
+  (native plugin)
+  (byte plugin))
  (link_flags -linkall)
  (libraries libsail base64)
  (embed_in_plugin_libraries base64))
@@ -19,4 +20,4 @@
   (site
    (libsail plugins)))
  (package sail_ocaml_backend)
- (files sail_plugin_ocaml.cmxs))
+ (files sail_plugin_ocaml.cmxs sail_plugin_ocaml.cma))

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+SAIL_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SAIL_BC="$SAIL_DIR/_build/default/src/bin/sail.bc"
+if [ ! -f "$SAIL_BC" ]; then
+    echo "Unable to find debug build of sail, please build it first."
+    echo "  dune build --profile debug"
+    exit 1
+fi
+export SAIL_DIR
+export DUNE_DIR_LOCATIONS="libsail:share:$SAIL_DIR/_build/install/default/share/libsail"
+exec rlwrap ocamldebug $(bash -c "find . -iname '*.cmo' ; find . -iname '*.cma'" | xargs dirname | sort | uniq | sed 's/^\(.*\)$/-I \1/' | tr '\n' ' ') "$SAIL_BC" $*

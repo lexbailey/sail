@@ -76,6 +76,7 @@ let opt_format_backup : string option ref = ref None
 let opt_format_only : string list ref = ref []
 let opt_format_skip : string list ref = ref []
 let opt_slice_instantiation_types : bool ref = ref false
+let is_bytecode = Sys.backend_type = Bytecode
 
 (* Allow calling all options as either -foo_bar, -foo-bar, or
    --foo-bar (for long options). The standard long-opt version
@@ -147,7 +148,7 @@ let add_target_header plugin opts =
 
 let load_plugin opts plugin =
   try
-    Dynlink.loadfile_private plugin;
+    if is_bytecode then Dynlink.loadfile plugin else Dynlink.loadfile_private plugin;
     let plugin_opts = Target.extract_options () |> fix_options |> target_align in
     opts := add_target_header plugin !opts @ plugin_opts
   with Dynlink.Error msg -> prerr_endline ("Failed to load plugin " ^ plugin ^ ": " ^ Dynlink.error_message msg)
@@ -583,6 +584,7 @@ let main () =
 
   options := Arg.align (fix_options !options);
 
+  let plugin_extension = if is_bytecode then ".cma" else ".cmxs" in
   begin
     match Sys.getenv_opt "SAIL_NO_PLUGINS" with
     | Some _ -> ()
@@ -592,7 +594,7 @@ let main () =
             List.iter
               (fun plugin ->
                 let path = Filename.concat dir plugin in
-                if Filename.extension plugin = ".cmxs" then load_plugin options path
+                if Filename.extension plugin = plugin_extension then load_plugin options path
               )
               (Array.to_list (Sys.readdir dir))
         | [] -> ()

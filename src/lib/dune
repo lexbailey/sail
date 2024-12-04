@@ -107,5 +107,6 @@
  (name libsail)
  (public_name libsail)
  (libraries lem linksem pprint dune-site yojson menhirLib)
+ (modes byte native)
  (instrumentation
   (backend bisect_ppx)))

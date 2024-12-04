@@ -10,6 +10,7 @@
 
 (executable
  (name sail)
+ (modes native byte)
  (public_name sail)
  (package sail)
  (link_flags -linkall)

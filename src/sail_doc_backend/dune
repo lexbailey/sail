@@ -1,7 +1,8 @@
 (executable
  (name sail_plugin_doc)
  (modes
-  (native plugin))
+  (native plugin)
+  (byte plugin))
  (link_flags -linkall)
  (libraries libsail omd yojson base64)
  (embed_in_plugin_libraries omd base64))
@@ -11,4 +12,4 @@
   (site
    (libsail plugins)))
  (package sail_doc_backend)
- (files sail_plugin_doc.cmxs))
+ (files sail_plugin_doc.cmxs sail_plugin_doc.cma))

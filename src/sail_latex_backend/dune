@@ -9,7 +9,8 @@
 (executable
  (name sail_plugin_latex)
  (modes
-  (native plugin))
+  (native plugin)
+  (byte plugin))
  (link_flags -linkall)
  (libraries libsail omd)
  (embed_in_plugin_libraries omd))
@@ -19,4 +20,4 @@
   (site
    (libsail plugins)))
  (package sail_latex_backend)
- (files sail_plugin_latex.cmxs))
+ (files sail_plugin_latex.cmxs sail_plugin_latex.cma))
