@@ -2177,6 +2177,12 @@ module Make (Config : CONFIG) = struct
           | [] -> parens empty
           | connections -> parens (separate (comma ^^ space) connections)
         in
+        let comment_print doc =
+          let mname = string_of_sv_name module_name in
+          let comment_doc doc = string "/* " ^^ doc ^^ string " */" in
+          if String.equal "print" mname then comment_doc doc else doc
+        in
+        comment_print @@
         pp_sv_name module_name ^^ params ^^ space ^^ string instance_name ^^ connections ^^ semi
     | SVD_fundef f -> pp_fundef f
     | SVD_module m -> pp_module ctx m
