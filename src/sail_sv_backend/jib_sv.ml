@@ -2074,6 +2074,8 @@ module Make (Config : CONFIG) = struct
         !names
 
   let rec pp_module ctx m =
+    if String.equal "fetch" (string_of_sv_name (m : sv_module).name)
+    then string "/* module fetch commented out */" ^^ empty else (
     Globals.toggle @@ Sv_ir.string_of_sv_name (m : sv_module).name;
     let params = if m.recursive then space ^^ string (Printf.sprintf "#(parameter RECURSION_DEPTH = %d)" Config.recursion_depth) ^^ space else empty in
 
@@ -2114,6 +2116,7 @@ module Make (Config : CONFIG) = struct
     string "module" ^^ space ^^ pp_sv_name m.name ^^ params ^^ ports
     ^^ generate (nest 4 (hardline ^^ separate_map hardline (pp_def ctx (Some m.name)) (asrt_defs @ m.defs) ^^ assertion))
     ^^ hardline ^^ string "endmodule"
+    )
 
   and pp_fundef f =
     let ret_ty, typedef =
