@@ -364,6 +364,16 @@ let string_of_init = function
   | Init_static vl -> "static " ^ string_of_value vl
   | Init_json_key parts -> Util.string_of_list "." (fun part -> "\"" ^ part ^ "\"") parts
 
+let string_of_cdef_aux = function
+  | CDEF_register (name, ctyp, _) -> Printf.sprintf "CDEF_register( %s, %s )" (string_of_name name) (string_of_ctyp ctyp)
+  | CDEF_type _ -> Printf.sprintf "CDEF_type ( __ )"
+  | CDEF_let (n, _, _) -> Printf.sprintf "CDEF_let ( %d )" n
+  | CDEF_val (id, _, _, _, _) -> Printf.sprintf "CDEF_val ( %s )" (string_of_id id)
+  | CDEF_fundef (id, _, _, _) -> Printf.sprintf "CDEF_fundef ( %s )" (string_of_id id)
+  | CDEF_startup (_, _) -> ""
+  | CDEF_finish (_, _) -> ""
+  | CDEF_pragma (_, _) -> ""
+
 let rec doc_instr (I_aux (aux, _)) =
   let open Printf in
   let instr s = twice space ^^ string s in

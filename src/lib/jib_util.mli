@@ -118,6 +118,7 @@ val string_of_value : Value2.vl -> string
 val string_of_cval : cval -> string
 val string_of_clexp : clexp -> string
 val string_of_instr : instr -> string
+val string_of_cdef_aux : cdef_aux -> string
 
 (** {1 Functions and modules for working with ctyps} *)
 

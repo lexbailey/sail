@@ -1426,6 +1426,7 @@ module Make (Config : CONFIG) = struct
 
   let svir_module ?debug_attr ?(footprint = pure_footprint) ?(return_vars = [Jib_util.return]) spec_info ctx name params
       param_ctyps ret_ctyps body =
+    prerr_endline @@ Printf.sprintf "Call 'svir_module' with module name : %s\n" (string_of_sv_name name);
     let footprint, is_recursive =
       match name with
       | SVN_id id ->
@@ -2404,6 +2405,7 @@ module Make (Config : CONFIG) = struct
   let empty_cdef_doc = { outside_module = empty; inside_module_prefix = empty; inside_module = empty }
 
   let svir_cdef spec_info ctx fn_ctyps (CDEF_aux (aux, def_annot)) =
+    prerr_endline @@ Printf.sprintf "Call 'svir_cdef' with definition name : %s\n" (string_of_cdef_aux aux);
     match aux with
     | CDEF_val (f, _, param_ctyps, ret_ctyp, ext_name) ->
         let attr, (module FunctionAttr) = get_sv_def_attribute "sv_function" def_annot in
