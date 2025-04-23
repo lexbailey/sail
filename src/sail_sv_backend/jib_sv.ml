@@ -171,7 +171,7 @@ module Make (Config : CONFIG) = struct
       end)
       ()
 
-  let pp_id_string id = NameGen.to_string () id
+  let pp_id_string id = Globals.prepend Config.global_prefix @@ NameGen.to_string () id
 
   let pp_id id = string (pp_id_string id)
 
@@ -1641,7 +1641,7 @@ module Make (Config : CONFIG) = struct
     let get_final_name name = match NameMap.find_opt name final_names with Some n -> n | None -> name in
 
     let output_ports : sv_module_port list =
-      List.map2
+      Globals.map2
         (fun var ret_ctyp -> { name = get_final_name var; external_name = ""; typ = ret_ctyp })
         return_vars ret_ctyps
       @ List.map
@@ -1919,7 +1919,7 @@ module Make (Config : CONFIG) = struct
               module_name;
               instance_name = sprintf "sail_inst_let_%d" n;
               input_connections = [];
-              output_connections = List.map (fun id -> SVP_id (name id)) ids;
+              output_connections = (if Option.is_some Config.global_prefix then [] else List.map (fun id -> SVP_id (name id)) ids);
             }
         )
         (IntMap.bindings spec_info.global_let_numbers)
@@ -1947,6 +1947,7 @@ module Make (Config : CONFIG) = struct
               | _ -> assert false
               )
             exposed_registers
+        @ Globals.Gen.always_comb_assignments Config.global_prefix
         @ ( if Config.no_write_flush then [] else
           [mk_statement (svs_raw "sail_flush_writes(out_memory_writes)" ~inputs:[Name (mk_id "out_memory_writes", -1)])]
           )
@@ -2021,6 +2022,7 @@ module Make (Config : CONFIG) = struct
       | _ -> ([], [mk_port Jib_util.return ret_ctyp])
     in
     let defs =
+      (Globals.Gen.top_defs Config.global_prefix) @
       (if inout_regs then [] else List.map register_def (register_inputs @ register_outputs))
       @ throws_outputs @ channel_outputs @ memory_writes @ return_def @ initialize_letbindings @ initialize_registers
       @ List.of_seq (Queue.to_seq qdefs)
@@ -2072,6 +2074,7 @@ module Make (Config : CONFIG) = struct
         !names
 
   let rec pp_module ctx m =
+    Globals.toggle @@ Sv_ir.string_of_sv_name (m : sv_module).name;
     let params = if m.recursive then space ^^ string (Printf.sprintf "#(parameter RECURSION_DEPTH = %d)" Config.recursion_depth) ^^ space else empty in
 
     let asrt_names = get_asrt_names m in
@@ -2146,6 +2149,7 @@ module Make (Config : CONFIG) = struct
   and pp_def ctx in_module (SVD_aux (aux, _)) =
     match aux with
     | SVD_null -> empty
+    | SVD_var (id, ctyp) when (Globals.remove_top_vars Config.global_prefix in_module) -> empty
     | SVD_var (id, ctyp) -> (
         let doc = wrap_type ctyp (pp_name id) ^^ semi in
         match id with
@@ -2460,7 +2464,7 @@ module Make (Config : CONFIG) = struct
         let module_name = SVN_string (sprintf "sail_setup_let_%d" n) in
         let setup_module =
           svir_module
-            ~return_vars:(List.map (fun (id, _) -> name id) bindings)
+            ~return_vars:(if Option.is_some Config.global_prefix then [] else (List.map (fun (id, _) -> name id) bindings))
             spec_info ctx module_name [] [] (List.map snd bindings)
             (setup @ [iundefined CT_unit])
         in
